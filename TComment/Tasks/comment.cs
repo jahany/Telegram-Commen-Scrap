@@ -56,7 +56,7 @@ namespace StockCore.Tasks
                     case "password": loginInfo = "secret!"; break; // if user has enabled 2FA
                     default: loginInfo = null; break;
                 }
-            _logger.LogInformation($"We are logged-in as {client.User} (id {client.User.id})");
+            _logger.LogInformation($"We are logged-in as {client.User} (id {client.User.id}) ------------------------------<><><<>>>>");
 
         }
 
@@ -72,71 +72,82 @@ namespace StockCore.Tasks
                     List<channels> channels = _db.channels.Where(x => x.isActive == true).ToList();
                     foreach (var c in channels)
                     {
-
-                        InputPeer channel = await client.Contacts_ResolveUsername(c.id);
-                        var peerDialogs = await client.Messages_GetPeerDialogs(channel);
-                        var msg_id = peerDialogs.dialogs[0].TopMessage;
-
-                        var replies = await client.Messages_GetReplies(channel, msg_id, 0);
-                        foreach (var item in replies.Messages)
+                        try
                         {
-                            userActivity ua = new userActivity();
-                            ua.messagetext = item.ToString().Split(">")[1];
-                            ua.regdate = item.Date;
-                            ua.userTelegramId = long.Parse(item.ToString().Split(">")[0]);
-                            ua.postlink = "https://t.me/" + c.id + "/" + msg_id;
-                            ua.channelsid = c.id;
-                            List<userActivity> res = _db.userActivity.Where(x => x.userTelegramId == ua.userTelegramId && x.regdate == ua.regdate && x.postlink == ua.postlink).ToList();
-                            if (res.Count < 1)
+
+                            InputPeer channel = await client.Contacts_ResolveUsername(c.id);
+                            var peerDialogs = await client.Messages_GetPeerDialogs(channel);
+                            var msg_id = peerDialogs.dialogs[0].TopMessage;
+
+                            var replies = await client.Messages_GetReplies(channel, msg_id, 0);
+                            foreach (var item in replies.Messages)
                             {
-                                _db.userActivity.Add(ua);
-                                _db.SaveChanges();
+                                userActivity ua = new userActivity();
+                                ua.messagetext = item.ToString().Split(">")[1];
+                                ua.regdate = item.Date;
+                                ua.userTelegramId = long.Parse(item.ToString().Split(">")[0]);
+                                ua.postlink = "https://t.me/" + c.id + "/" + msg_id;
+                                ua.channelsid = c.id;
+                                List<userActivity> res = _db.userActivity.Where(x => x.userTelegramId == ua.userTelegramId && x.regdate == ua.regdate && x.postlink == ua.postlink).ToList();
+                                if (res.Count < 1)
+                                {
+                                    _db.userActivity.Add(ua);
+                                    _db.SaveChanges();
+                                }
+                            }
+
+
+                            var replies1 = await client.Messages_GetReplies(channel, msg_id - 1, 0);
+                            foreach (var item in replies1.Messages)
+                            {
+                                userActivity ua = new userActivity();
+                                ua.messagetext = item.ToString().Split(">")[1];
+                                ua.regdate = item.Date;
+                                ua.userTelegramId = long.Parse(item.ToString().Split(">")[0]);
+                                ua.postlink = "https://t.me/" + c.id + "/" + (msg_id - 1);
+                                ua.channelsid = c.id;
+                                List<userActivity> res = _db.userActivity.Where(x => x.userTelegramId == ua.userTelegramId && x.regdate == ua.regdate && x.postlink == ua.postlink).ToList();
+                                if (res.Count < 1)
+                                {
+                                    _db.userActivity.Add(ua);
+                                    _db.SaveChanges();
+                                }
+                            }
+
+
+
+                            var replies2 = await client.Messages_GetReplies(channel, msg_id - 2, 0);
+                            foreach (var item in replies2.Messages)
+                            {
+                                userActivity ua = new userActivity();
+                                ua.messagetext = item.ToString().Split(">")[1];
+                                ua.regdate = item.Date;
+                                ua.userTelegramId = long.Parse(item.ToString().Split(">")[0]);
+                                ua.postlink = "https://t.me/" + c.id + "/" + (msg_id - 2);
+                                ua.channelsid = c.id;
+                                List<userActivity> res = _db.userActivity.Where(x => x.userTelegramId == ua.userTelegramId && x.regdate == ua.regdate && x.postlink == ua.postlink).ToList();
+                                if (res.Count < 1)
+                                {
+                                    _db.userActivity.Add(ua);
+                                    _db.SaveChanges();
+                                }
                             }
                         }
-
-
-                        var replies1 = await client.Messages_GetReplies(channel, msg_id-1, 0);
-                        foreach (var item in replies1.Messages)
+                        catch (Exception ex)
                         {
-                            userActivity ua = new userActivity();
-                            ua.messagetext = item.ToString().Split(">")[1];
-                            ua.regdate = item.Date;
-                            ua.userTelegramId = long.Parse(item.ToString().Split(">")[0]);
-                            ua.postlink = "https://t.me/" + c.id + "/" + (msg_id-1);
-                            ua.channelsid = c.id;
-                            List<userActivity> res = _db.userActivity.Where(x => x.userTelegramId == ua.userTelegramId && x.regdate == ua.regdate && x.postlink == ua.postlink).ToList();
-                            if (res.Count < 1)
-                            {
-                                _db.userActivity.Add(ua);
-                                _db.SaveChanges();
-                            }
-                        }
 
-
-
-                        var replies2 = await client.Messages_GetReplies(channel, msg_id-2, 0);
-                        foreach (var item in replies2.Messages)
-                        {
-                            userActivity ua = new userActivity();
-                            ua.messagetext = item.ToString().Split(">")[1];
-                            ua.regdate = item.Date;
-                            ua.userTelegramId = long.Parse(item.ToString().Split(">")[0]);
-                            ua.postlink = "https://t.me/" + c.id + "/" + (msg_id-2);
-                            ua.channelsid = c.id;
-                            List<userActivity> res = _db.userActivity.Where(x => x.userTelegramId == ua.userTelegramId && x.regdate == ua.regdate && x.postlink == ua.postlink).ToList();
-                            if (res.Count < 1)
-                            {
-                                _db.userActivity.Add(ua);
-                                _db.SaveChanges();
-                            }
                         }
                     }
                 }
-                await Task.Delay(180000);
+                Console.WriteLine("Gooooood >>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<");
+                await Task.Delay(10000);
                 DoWork(null);
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Error >>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<" + ex.Message);
+
+                await Task.Delay(10000);
                 DoWork(null);
             }
         }

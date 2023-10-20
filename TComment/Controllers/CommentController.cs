@@ -38,7 +38,6 @@ namespace TComment.Controllers
         [HttpGet("getUsers")]
         public ActionResult getUsers()
         {
-
             return Ok(_db.users.ToList());
         }
 
