@@ -11,11 +11,26 @@ namespace TComment
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
             // Add services to the container.
 
             builder.Services.AddDbContext<TComment_DBContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  policy =>
+                                  {
+                                      policy
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod()
+                                      .SetIsOriginAllowed((host) => true)
+                                      .AllowCredentials();
+                                  });
             });
 
             builder.Services.AddHostedService<GetCommentsTask>();
@@ -35,6 +50,8 @@ namespace TComment
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseAuthorization();
 

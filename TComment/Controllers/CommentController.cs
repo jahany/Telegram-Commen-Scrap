@@ -7,14 +7,18 @@ using TL;
 
 namespace TComment.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/comment")]
     [ApiController]
     public class CommentController : ControllerBase
     {
+        public IConfiguration _configuration;
+
         private readonly ILogger<CommentController> _logger;
         private readonly TComment_DBContext _db;
-        public CommentController(ILogger<CommentController> log, TComment_DBContext db)
+        public CommentController(IConfiguration config,ILogger<CommentController> log, TComment_DBContext db)
         {
+            _configuration = config;
+
             _logger = log;
             _db = db;
         }
@@ -31,6 +35,13 @@ namespace TComment.Controllers
             return Ok(res.ToList());
         }
 
+        [HttpGet("getUsers")]
+        public ActionResult getUsers()
+        {
+
+            return Ok(_db.users.ToList());
+        }
+
         [HttpPost("insertUser")]
         public ActionResult insertUser(users u)
         {
@@ -45,7 +56,7 @@ namespace TComment.Controllers
                 return BadRequest(ModelState);
             }
         }
-        [HttpPost]
+        [HttpPost("deleteUser")]
         public ActionResult deleteUser(long UserId)
         {
             users u = new users() { id = UserId };
@@ -56,13 +67,13 @@ namespace TComment.Controllers
             return Ok();
         }
 
-        [HttpGet]
+        [HttpGet("getChannels")]
         public ActionResult getChannels()
         {
 
             return Ok(_db.channels.ToList());
         }
-        [HttpPost]
+        [HttpPost("deleteChannels")]
         public ActionResult deleteChannels(string ChannelId)
         {
             channels c = new channels() { id = ChannelId };
@@ -71,7 +82,7 @@ namespace TComment.Controllers
             _db.SaveChanges();
             return Ok();
         }
-        [HttpPost]
+        [HttpPost("insertcahnnel")]
         public ActionResult insertcahnnel(channels c)
         {
             if (ModelState.IsValid)
