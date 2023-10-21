@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -11,8 +11,10 @@ import { deleteUser } from "../../redux/deleteUserSlice";
 import { setSelectedUser } from "../../redux/selectedUserSlice";
 import { fetchcomments } from "../../redux/commentsSlice";
 
-export const ChannelTable = ({ data }) => {
 
+
+
+export const ChannelTable = ({ data }) => {
     return (
       <TableContainer>
         <TableCn>
@@ -39,15 +41,31 @@ export const ChannelTable = ({ data }) => {
 
 
   export const UserTable = ({ data }) => {
+
     const dispatch = useDispatch();
     const [showAlert, setShowAlert] = useState(false);
     const [selectedId, setSelectedId] = useState();
 
     const selectedUserId = useSelector((state) => state.selectedUser.userId);
     const selectUserHandler = (userTelegramId) => {
+
       dispatch(setSelectedUser(userTelegramId));
-      dispatch(fetchcomments(selectedUserId));
+      dispatch(fetchcomments(userTelegramId));
     }
+    
+    console.log(selectedUserId);
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        console.log(selectedUserId);
+
+        dispatch(fetchcomments(selectedUserId))
+      }, 1000);
+    
+      return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+    }, [selectedUserId])
+
+
     return (
       <>
       <TableContainer>
@@ -108,7 +126,7 @@ export const CommentTable = ({ data }) => {
         !data.rows.length ? <Loader><p>loading ...</p></Loader> :
         data.rows.map((row, rowIndex) => (
           <TableRow>
-            <TableCell>{row.username}</TableCell>
+            {/* <TableCell>{row.username}</TableCell> */}
             <TableCell>{row.regdate}</TableCell>
             <TableCell>{row.messagetext}</TableCell> 
             <TableCell ><a href={row.postlink} ><img src={linkIcon} /></a></TableCell>
