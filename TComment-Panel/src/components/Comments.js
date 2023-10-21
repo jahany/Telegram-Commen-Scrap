@@ -3,7 +3,7 @@ import { styled } from "styled-components";
 import {  useSelector, useDispatch } from 'react-redux';
 
 //Components
-import { commentTable } from './shared.js/Table';
+import { CommentTable } from './shared.js/Table';
 
 //Icons
 import linkIcon from "../assest/icons/link.png";
@@ -27,7 +27,7 @@ const Comments = () => {
 
     return (
         <Container title= "لیست کاربران" >
-            <commentTable data={tableData} />
+            <CommentTable data={tableData} />
         </Container>
     );
 };

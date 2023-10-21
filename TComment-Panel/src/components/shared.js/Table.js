@@ -61,12 +61,12 @@ export const ChannelTable = ({ data }) => {
           </thead>
           <tbody>
           {data.rows.map((row, rowIndex) => (
-            <TableRow key={rowIndex} onClick={() => selectUserHandler(row.userTelegramId)}>
+            <TableRowUser key={rowIndex} onClick={() => selectUserHandler(row.userTelegramId)}>
               <TableCell>{row.id}</TableCell>
               <TableCell>{row.name}</TableCell>
               <TableCell>{row.phone}</TableCell> 
               <TableCell ><img src={deleteIcon}  onClick={() =>{setShowAlert(true); setSelectedId(row.id)}}  /></TableCell>
-            </TableRow>
+            </TableRowUser>
           ))}
         </tbody>
         </TableCn>
@@ -91,7 +91,7 @@ export const ChannelTable = ({ data }) => {
     )
 }
 
-export const commentTable = ({ data }) => {
+export const CommentTable = ({ data }) => {
   return (
     <>
     <TableContainer>
@@ -104,12 +104,14 @@ export const commentTable = ({ data }) => {
           </TableRow>
         </thead>
         <tbody>
-        {data.rows.map((row, rowIndex) => (
+        {
+        !data.rows.length ? <Loader><p>loading ...</p></Loader> :
+        data.rows.map((row, rowIndex) => (
           <TableRow>
-            <TableCell>{row.id}</TableCell>
-            <TableCell>{row.name}</TableCell>
-            <TableCell>{row.phone}</TableCell> 
-            <TableCell ><img src={linkIcon}   /></TableCell>
+            <TableCell>{row.username}</TableCell>
+            <TableCell>{row.regdate}</TableCell>
+            <TableCell>{row.messagetext}</TableCell> 
+            <TableCell ><a href={row.postlink} ><img src={linkIcon} /></a></TableCell>
           </TableRow>
         ))}
       </tbody>
@@ -133,6 +135,21 @@ const TableCn = styled.table`
   border: 1px solid rgb(32, 43, 64);
 `;
 
+const Loader = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & p{
+    color: #000;
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+  }
+`
+
 const TableHeader = styled.th`
   background-color: #6d9dc2;
   border: 1px solid #ddd;
@@ -144,6 +161,12 @@ const TableHeader = styled.th`
 const TableRow = styled.tr`
 
 `;
+const TableRowUser = styled.tr`
+    cursor: pointer;
+    &:hover {
+    background-color: rgba(189, 189, 189, 0.20);
+  }
+`
 
 const TableCell = styled.td`
   border: 1px solid #ddd;
