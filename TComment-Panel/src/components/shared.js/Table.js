@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 //Icons
 import deleteIcon from "../../assest/icons/delete.svg";
+import linkIcon from "../../assest/icons/link.png";
 
 //Redux
 import { deleteUser } from "../../redux/deleteUserSlice";
 import { setSelectedUser } from "../../redux/selectedUserSlice";
+import { fetchcomments } from "../../redux/commentsSlice";
 
 export const ChannelTable = ({ data }) => {
 
@@ -40,6 +42,12 @@ export const ChannelTable = ({ data }) => {
     const dispatch = useDispatch();
     const [showAlert, setShowAlert] = useState(false);
     const [selectedId, setSelectedId] = useState();
+
+    const selectedUserId = useSelector((state) => state.selectedUser.userId);
+    const selectUserHandler = (userTelegramId) => {
+      dispatch(setSelectedUser(userTelegramId));
+      dispatch(fetchcomments(selectedUserId));
+    }
     return (
       <>
       <TableContainer>
@@ -53,7 +61,7 @@ export const ChannelTable = ({ data }) => {
           </thead>
           <tbody>
           {data.rows.map((row, rowIndex) => (
-            <TableRow key={rowIndex} onClick={() => dispatch(setSelectedUser(row.userTelegramId))}>
+            <TableRow key={rowIndex} onClick={() => selectUserHandler(row.userTelegramId)}>
               <TableCell>{row.id}</TableCell>
               <TableCell>{row.name}</TableCell>
               <TableCell>{row.phone}</TableCell> 
@@ -64,7 +72,7 @@ export const ChannelTable = ({ data }) => {
         </TableCn>
       </TableContainer>
 
-      <Alert showAlert={showAlert} onClick={() => dispatch(deleteUser(setSelectedId))} setShowAlert={setShowAlert} />
+      <Alert showAlert={showAlert} onClick={() => dispatch(deleteUser(selectedId))} setShowAlert={setShowAlert} />
       </>
     );
   };
@@ -82,6 +90,34 @@ export const ChannelTable = ({ data }) => {
         </Box>
     )
 }
+
+export const commentTable = ({ data }) => {
+  return (
+    <>
+    <TableContainer>
+      <TableCn>
+        <thead>
+          <TableRow>
+            {data.headers.map((header, index) => (
+              <TableHeader key={index}>{header}</TableHeader>
+            ))}
+          </TableRow>
+        </thead>
+        <tbody>
+        {data.rows.map((row, rowIndex) => (
+          <TableRow>
+            <TableCell>{row.id}</TableCell>
+            <TableCell>{row.name}</TableCell>
+            <TableCell>{row.phone}</TableCell> 
+            <TableCell ><img src={linkIcon}   /></TableCell>
+          </TableRow>
+        ))}
+      </tbody>
+      </TableCn>
+    </TableContainer>
+    </>
+  );
+};
 
 const TableContainer = styled.div`
   width: 100%;

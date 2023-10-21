@@ -1,27 +1,33 @@
 import React, { useEffect } from 'react';
 import { styled } from "styled-components";
-import {  useSelector } from 'react-redux';
+import {  useSelector, useDispatch } from 'react-redux';
 
 //Components
-// import Table from './shared.js/Table';
+import { commentTable } from './shared.js/Table';
 
 //Icons
 import linkIcon from "../assest/icons/link.png";
 
+//Redux
+import { fetchcomments } from '../redux/commentsSlice';
+
 const Comments = () => {
+    const dispatch = useDispatch();
+
+    const commentSelector = useSelector((state) => state.commentsList.comments);
+
+    useEffect(() => {
+        console.log(commentSelector);
+    }, [])
+
     const tableData = {
         headers: ["نام کاربری", "تاریخ و ساعت", "کامنت","لینک"],
-        rows: [
-          ["@user","متن کامنت", "۱۴۰۲/۰۷/۲۸ - ۱۲:۴۵", <img src={linkIcon} />],
-        ],
+        rows: commentSelector
       };
 
-    const channelsSelector = useSelector((state) => state.channelLists.channels);
-    
     return (
         <Container title= "لیست کاربران" >
-            {/* { channelsSelector.length && channelsSelector.map(channel => <p>{channel.username}</p>) } */}
-            {/* <Table data={tableData} /> */}
+            <commentTable data={tableData} />
         </Container>
     );
 };
