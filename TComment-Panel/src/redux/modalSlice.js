@@ -7,11 +7,11 @@ const modalSlice = createSlice({
     channelPopup: false
   },
   reducers: {
-    toggleModalUsers: (state) => {
-      return { ...state, userPopup: !state.userPopup };
+    toggleModalUsers: (state, action) => {
+      state.userPopup = action.payload
     },
-    toggleModalChannels: (state) => {
-      return { ...state, channelPopup: !state.channelPopup };
+    toggleModalChannels: (state, action) => {
+      state.channelPopup = action.payload
     }
   }
 });

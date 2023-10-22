@@ -9,7 +9,7 @@ import { CommentTable } from './shared.js/Table';
 import linkIcon from "../assest/icons/link.png";
 
 //Redux
-import { fetchcomments } from '../redux/commentsSlice';
+import { fetchcomments } from '../redux/comments/commentsSlice';
 
 const Comments = () => {
     const dispatch = useDispatch();

@@ -5,16 +5,26 @@ import { useDispatch, useSelector } from "react-redux";
 //Icons
 import deleteIcon from "../../assest/icons/delete.svg";
 import linkIcon from "../../assest/icons/link.png";
+import editIcon from "../../assest/icons/edit.svg";
 
 //Redux
-import { deleteUser } from "../../redux/deleteUserSlice";
-import { setSelectedUser } from "../../redux/selectedUserSlice";
-import { fetchcomments } from "../../redux/commentsSlice";
-
-
+import { deleteUser } from "../../redux/users/deleteUserSlice";
+import { setSelectedUser } from "../../redux/users/selectedUserSlice";
+import { fetchcomments } from "../../redux/comments/commentsSlice";
+import { deleteChannel } from "../../redux/channels/deleteChannelSlice";
+import { toggleModalUsers, toggleModalChannels } from "../../redux/modalSlice";
 
 
 export const ChannelTable = ({ data }) => {
+  const dispatch = useDispatch();
+  const [showAlert, setShowAlert] = useState(false);
+  const [selectedId, setSelectedId] = useState();
+
+  const editChannelHandler = () => {
+    dispatch(toggleModalChannels(true));
+  }
+
+
     return (
       <TableContainer>
         <TableCn>
@@ -30,11 +40,13 @@ export const ChannelTable = ({ data }) => {
             <TableRow key={rowIndex}>
               <TableCell>{row.id}</TableCell>
               <TableCell>{row.name}</TableCell>
-              <TableCell>{row.isActive ? "فعال" : "غیرفعال"}</TableCell>
+              <TableCell className="select" onClick={() => changeChannelType}>{row.isActive ? "فعال" : "غیرفعال"}</TableCell>
+              <TableCell ><img src={deleteIcon}  onClick={() =>{setShowAlert(true); setSelectedId(row.id)}} /></TableCell>
             </TableRow>
           ))}
         </tbody>
         </TableCn>
+        { showAlert ? <Alert  onClick={() => dispatch(deleteChannel(selectedId))} setShowAlert={setShowAlert} /> : null}
       </TableContainer>
     );
   };
@@ -45,7 +57,6 @@ export const ChannelTable = ({ data }) => {
     const dispatch = useDispatch();
     const [showAlert, setShowAlert] = useState(false);
     const [selectedId, setSelectedId] = useState();
-
     const selectedUserId = useSelector((state) => state.selectedUser.userId);
     const selectUserHandler = (userTelegramId) => {
 
@@ -53,18 +64,18 @@ export const ChannelTable = ({ data }) => {
       dispatch(fetchcomments(userTelegramId));
     }
     
-    console.log(selectedUserId);
+    const editUserHandler = (data) => {
+      dispatch(toggleModalUsers(true));
+    }
 
     useEffect(() => {
       const interval = setInterval(() => {
         console.log(selectedUserId);
-
         dispatch(fetchcomments(selectedUserId))
       }, 1000);
     
-      return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+      return () => clearInterval(interval);
     }, [selectedUserId])
-
 
     return (
       <>
@@ -79,30 +90,33 @@ export const ChannelTable = ({ data }) => {
           </thead>
           <tbody>
           {data.rows.map((row, rowIndex) => (
-            <TableRowUser key={rowIndex} onClick={() => selectUserHandler(row.userTelegramId)}>
-              <TableCell>{row.id}</TableCell>
-              <TableCell>{row.name}</TableCell>
+            <TableRowUser key={rowIndex} onClick={() => selectUserHandler(row.userTelegramId)} >
+              <TableCell >{row.id}</TableCell>
+              <TableCell >{row.userTelegramId}</TableCell>
+              <TableCell >{row.name}</TableCell>
               <TableCell>{row.phone}</TableCell> 
+              <TableCell ><img src={editIcon} onClick={() => editUserHandler(row)}  /></TableCell>
               <TableCell ><img src={deleteIcon}  onClick={() =>{setShowAlert(true); setSelectedId(row.id)}}  /></TableCell>
             </TableRowUser>
           ))}
         </tbody>
         </TableCn>
       </TableContainer>
-
-      <Alert showAlert={showAlert} onClick={() => dispatch(deleteUser(selectedId))} setShowAlert={setShowAlert} />
+      { showAlert ? <Alert onClick={() => dispatch(deleteUser(selectedId))} setShowAlert={setShowAlert} /> : null}
       </>
     );
   };
 
-  export const Alert = ({showAlert, onClick, setShowAlert}) => {
-
-
+  export const Alert = ({ onClick, setShowAlert}) => {
+    const clickHandler = () =>{
+      onClick();
+      setShowAlert(false);
+    }
     return(
-        <Box showAlert={showAlert}>
+        <Box >
             <p>آیا از حذف این مورد مطمين هستید؟</p>
             <div>
-              <button onClick={onClick}>بله</button>
+              <button onClick={clickHandler}>بله</button>
               <button onClick={() => setShowAlert(false)} >لغو</button>
             </div>
         </Box>
@@ -110,6 +124,8 @@ export const ChannelTable = ({ data }) => {
 }
 
 export const CommentTable = ({ data }) => {
+  const sortedRows = data.rows.slice().sort((a, b) => b.createdAt - a.createdAt);
+
   return (
     <>
     <TableContainer>
@@ -122,17 +138,22 @@ export const CommentTable = ({ data }) => {
           </TableRow>
         </thead>
         <tbody>
-        {
-        !data.rows.length ? <Loader><p>loading ...</p></Loader> :
-        data.rows.map((row, rowIndex) => (
-          <TableRow>
-            {/* <TableCell>{row.username}</TableCell> */}
-            <TableCell>{row.regdate}</TableCell>
-            <TableCell>{row.messagetext}</TableCell> 
-            <TableCell ><a href={row.postlink} ><img src={linkIcon} /></a></TableCell>
-          </TableRow>
-        ))}
-      </tbody>
+          {
+            !sortedRows.length ? <Loader><p>loading ...</p></Loader> :
+            sortedRows.map((row, rowIndex) => (
+              <TableRow key={rowIndex}>
+                {/* <TableCell>{row.username}</TableCell> */}
+                <TableCell>{row.regdate}</TableCell>
+                <TableCell>{row.messagetext}</TableCell> 
+                <TableCell>
+                  <a href={row.postlink}>
+                    <span>{row.postlink}</span>
+                  </a>
+                </TableCell>
+              </TableRow>
+            ))
+          }
+        </tbody>
       </TableCn>
     </TableContainer>
     </>
@@ -194,6 +215,10 @@ const TableCell = styled.td`
     width: 20px;
     cursor: pointer;
   }
+
+  &.select{
+    cursor: pointer;
+  }
 `;
 
 const Box = styled.div`
@@ -208,7 +233,7 @@ const Box = styled.div`
     top: 30%;
     z-index: 10;
     text-align: right;
-    display: ${(props) => props.showAlert ? "flex" : "none"};
+    display: flex;
     flex-direction: column;
 
     & div{

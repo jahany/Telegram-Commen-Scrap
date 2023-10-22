@@ -2,7 +2,7 @@ import React,{ useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 //Redux
-import { fetchchannels } from '../redux/channelSlice';
+import { fetchchannels } from '../redux/channels/channelSlice';
 import { toggleModalChannels } from '../redux/modalSlice';
 
 //Components
@@ -23,12 +23,12 @@ const Channel = () => {
   }, []);
 
   const tableData = {
-      headers: ["نام کانال", "نام کاربری", "وضعیت"],
+      headers: ["نام کانال", "نام کاربری", "وضعیت","حذف"],
       rows: channels,
     };
 
     const addChannelHandler = () => {
-        dispatch(toggleModalChannels());
+        dispatch(toggleModalChannels(true));
     }
 
     return (

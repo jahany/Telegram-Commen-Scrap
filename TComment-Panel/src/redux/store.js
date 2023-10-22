@@ -1,11 +1,11 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
 //Reducers
-import channelSlice from "./channelSlice";
+import channelSlice from "./channels/channelSlice";
 import modalSlice from "./modalSlice";
-import userSlice from "./userSlice";
-import selectedUserSlice from "./selectedUserSlice";
-import commentsSlice from "./commentsSlice";
+import userSlice from "./users/userSlice";
+import selectedUserSlice from "./users/selectedUserSlice";
+import commentsSlice from "./comments/commentsSlice";
 
 const store = configureStore({
   reducer: combineReducers({

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 //Redux
 import { toggleModalUsers } from '../redux/modalSlice';
-import { fetchusers } from '../redux/userSlice';
+import { fetchusers } from '../redux/users/userSlice';
 
 //Components
 import Container from './shared.js/Container';
@@ -18,18 +18,17 @@ const Users = () => {
     const dispatch = useDispatch();
     const users = useSelector((state) => state.userList.users);
     const popUpSelector = useSelector((state) => state.modal.userPopup);
-    console.log(users);
 
     useEffect(() => {
       dispatch(fetchusers());
     },[])
     const tableData = {
-        headers: ["آیدی", "نام کاربری", "شماره تلفن","حذف"],
+        headers: ["شناسه","نام کاربری", "نام ", "شماره تلفن","ویرایش","حذف"],
         rows:users,
       };
 
     const addUserHandler =() => {
-        dispatch(toggleModalUsers());
+        dispatch(toggleModalUsers(true));
     }
 
     return (

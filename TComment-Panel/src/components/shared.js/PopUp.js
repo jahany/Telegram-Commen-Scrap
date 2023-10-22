@@ -5,14 +5,18 @@ import { toast } from "react-toastify";
 
 //Redux
 import { toggleModalUsers, toggleModalChannels } from "../../redux/modalSlice";
-import { createChannel } from "../../redux/createChannelSlice";
-import { createUser } from "../../redux/createUserSlice";
+import { createChannel } from "../../redux/channels/createChannelSlice";
+import { createUser } from "../../redux/users/createUserSlice";
 
 const PopUp = () => {
     const dispatch = useDispatch();
     const userSelector = useSelector((state) => state.modal.userPopup);
     const channelSelector = useSelector((state) => state.modal.channelPopup);
     const [channelName, setChannelName] = useState("");
+
+    const selectedUserId = useSelector((state) => state.selectedUser.userId);
+    const users = useSelector((state) => state.userList.users);
+    const editUser = users.find(user => user.userTelegramId === selectedUserId);
 
     const [userData, setUserData] = useState([]);
 
@@ -55,16 +59,17 @@ const PopUp = () => {
     }
 
     return(
-        <ModalCn>
+        <ModalCn onClick={() => { dispatch(toggleModalUsers(false)); dispatch(toggleModalChannels(false)) }}>
             {
                 userSelector &&
                 <Box>
+
                     <p>نام</p>
-                    <input type='text' value={userData.name} onChange={(e) => setUserDatas( "name", e.target.value)} />
+                    <input type='text' value={editUser.name} onChange={(e) => setUserDatas( "name", e.target.value)} />
                     <p>نام کاربری</p>
-                    <input type='text' value={userData.username} onChange={(e) => setUserDatas("userTelegramId", e.target.value)} />
+                    <input type='text' value={editUser.userTelegramId} onChange={(e) => setUserDatas("userTelegramId", e.target.value)} />
                     <p>موبایل</p>
-                    <input type='text' value={userData.mobile} onChange={(e) => setUserDatas("phone", e.target.value)} />
+                    <input type='text' value={editUser.phone} onChange={(e) => setUserDatas("phone", e.target.value)} />
                     <button onClick={() => userDataHandler()}>ذخیره</button>
                 </Box>
             }
