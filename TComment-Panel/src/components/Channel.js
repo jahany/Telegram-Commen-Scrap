@@ -34,7 +34,6 @@ const Channel = () => {
     return (
         <>
           <Container title= "لیست کانال ها"  image={channelIcon} onClick={() => addChannelHandler()}>
-              {/* { channelsSelector.length && channelsSelector.map(channel => <p>{channel.username}</p>) } */}
               <ChannelTable data={tableData} />
           </Container>
           { popUpSelector ?  <PopUp/> : null}
