@@ -21,7 +21,7 @@ const Comments = () => {
     }, [])
 
     const tableData = {
-        headers: ["نام کاربری", "تاریخ و ساعت", "کامنت","لینک"],
+        headers: [ "تاریخ و ساعت", "کامنت","لینک"],
         rows: commentSelector
       };
 
