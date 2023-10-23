@@ -18,10 +18,11 @@ const Users = () => {
     const dispatch = useDispatch();
     const users = useSelector((state) => state.userList.users);
     const popUpSelector = useSelector((state) => state.modal.userPopup);
+    const popUpEditSelector = useSelector((state) => state.modal.edituserPopup);
 
     useEffect(() => {
       dispatch(fetchusers());
-    },[])
+    },[users])
     const tableData = {
         headers: ["شناسه","نام کاربری", "نام ", "شماره تلفن","ویرایش","حذف"],
         rows:users,
@@ -36,7 +37,7 @@ const Users = () => {
         <Container title= "لیست کاربران"  image={userIcon} onClick={() => addUserHandler()}>
             <UserTable data={tableData} />
         </Container>
-        { popUpSelector ? <PopUp/> : null}
+        { popUpSelector || popUpEditSelector ? <PopUp/> : null}
     </>
     );
 };

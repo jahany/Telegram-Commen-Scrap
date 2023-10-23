@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 //Icons
 import deleteIcon from "../../assest/icons/delete.svg";
@@ -9,21 +10,42 @@ import editIcon from "../../assest/icons/edit.svg";
 
 //Redux
 import { deleteUser } from "../../redux/users/deleteUserSlice";
+import { deleteChannel } from "../../redux/channels/deleteChannelSlice";
 import { setSelectedUser } from "../../redux/users/selectedUserSlice";
 import { fetchcomments } from "../../redux/comments/commentsSlice";
-import { deleteChannel } from "../../redux/channels/deleteChannelSlice";
-import { toggleModalUsers, toggleModalChannels } from "../../redux/modalSlice";
-
+import { fetchchannels } from "../../redux/channels/channelSlice";
+import { fetchusers } from "../../redux/users/userSlice";
+import { createChannel } from "../../redux/channels/createChannelSlice";
+import { toggleModalEditusers } from "../../redux/modalSlice";
 
 export const ChannelTable = ({ data }) => {
+
   const dispatch = useDispatch();
   const [showAlert, setShowAlert] = useState(false);
-  const [selectedId, setSelectedId] = useState();
+  const [selectedId, setSelectedId] = useState("");
 
-  const editChannelHandler = () => {
-    dispatch(toggleModalChannels(true));
+
+  //Active or Deactive Channel Channel
+  const changeChannelType = async (type, data) => {
+      try {
+          const newChannelData = {
+              "id": data.id,
+              "name": data.name,
+              "telegramId": data.telegramId,
+              "isActive": type,
+          };
+          await dispatch(createChannel(newChannelData));
+          dispatch(fetchchannels());
+      } catch (error) {
+          toast.error(error);
+      }
   }
-
+  //Delete Channel
+  const deleteChannelHandler = () => {
+    dispatch(deleteChannel(selectedId));
+    dispatch(fetchusers());
+    toast.success("با موفقیت حذف شد");
+  }
 
     return (
       <TableContainer>
@@ -40,13 +62,13 @@ export const ChannelTable = ({ data }) => {
             <TableRow key={rowIndex}>
               <TableCell>{row.id}</TableCell>
               <TableCell>{row.name}</TableCell>
-              <TableCell className="select" onClick={() => changeChannelType}>{row.isActive ? "فعال" : "غیرفعال"}</TableCell>
-              <TableCell ><img src={deleteIcon}  onClick={() =>{setShowAlert(true); setSelectedId(row.id)}} /></TableCell>
+              <TableCell className="select" onClick={() => row.isActive ? changeChannelType(false, row) : changeChannelType(true, row) }>{row.isActive ? "فعال" : "غیرفعال"}</TableCell>
+              <TableCell ><img src={deleteIcon}  onClick={() =>{setSelectedId(row.id); setShowAlert(true)}} /></TableCell>
             </TableRow>
           ))}
         </tbody>
         </TableCn>
-        { showAlert ? <Alert  onClick={() => dispatch(deleteChannel(selectedId))} setShowAlert={setShowAlert} /> : null}
+        { showAlert ? <Alert onClick={() => deleteChannelHandler()} setShowAlert={setShowAlert} /> : null}
       </TableContainer>
     );
   };
@@ -58,19 +80,26 @@ export const ChannelTable = ({ data }) => {
     const [showAlert, setShowAlert] = useState(false);
     const [selectedId, setSelectedId] = useState();
     const selectedUserId = useSelector((state) => state.selectedUser.userId);
-    const selectUserHandler = (userTelegramId) => {
 
+    const selectUserHandler = (userTelegramId) => {
       dispatch(setSelectedUser(userTelegramId));
       dispatch(fetchcomments(userTelegramId));
     }
     
-    const editUserHandler = (data) => {
-      dispatch(toggleModalUsers(true));
+    const editUserHandler = (userTelegramId) => {
+      dispatch(setSelectedUser(userTelegramId));
+      dispatch(toggleModalEditusers(true));
+    }
+
+    const deleteUserHandler = () => {
+      dispatch(deleteUser(selectedId));
+      dispatch(fetchusers());
+      toast.success("با موفقیت حذف شد");
+
     }
 
     useEffect(() => {
       const interval = setInterval(() => {
-        console.log(selectedUserId);
         dispatch(fetchcomments(selectedUserId))
       }, 1000);
     
@@ -90,19 +119,19 @@ export const ChannelTable = ({ data }) => {
           </thead>
           <tbody>
           {data.rows.map((row, rowIndex) => (
-            <TableRowUser key={rowIndex} onClick={() => selectUserHandler(row.userTelegramId)} >
-              <TableCell >{row.id}</TableCell>
-              <TableCell >{row.userTelegramId}</TableCell>
-              <TableCell >{row.name}</TableCell>
+            <TableRowUser key={row.id}>
+              <TableCell key={rowIndex} onClick={() => selectUserHandler(row.userTelegramId)} >{row.id}</TableCell>
+              <TableCell key={rowIndex} onClick={() => selectUserHandler(row.userTelegramId)} >{row.userTelegramId}</TableCell>
+              <TableCell key={rowIndex} onClick={() => selectUserHandler(row.userTelegramId)} >{row.name}</TableCell>
               <TableCell>{row.phone}</TableCell> 
-              <TableCell ><img src={editIcon} onClick={() => editUserHandler(row)}  /></TableCell>
+              <TableCell ><img src={editIcon} onClick={() => editUserHandler(row.userTelegramId)}  /></TableCell>
               <TableCell ><img src={deleteIcon}  onClick={() =>{setShowAlert(true); setSelectedId(row.id)}}  /></TableCell>
             </TableRowUser>
           ))}
         </tbody>
         </TableCn>
       </TableContainer>
-      { showAlert ? <Alert onClick={() => dispatch(deleteUser(selectedId))} setShowAlert={setShowAlert} /> : null}
+      { showAlert ? <Alert onClick={() => deleteUserHandler()} setShowAlert={setShowAlert} /> : null}
       </>
     );
   };
