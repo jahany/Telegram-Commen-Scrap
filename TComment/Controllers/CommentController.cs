@@ -29,8 +29,18 @@ namespace TComment.Controllers
             var res = from ua in _db.Set<userActivity>()
                       join u in _db.Set<users>()
                       on ua.userTelegramId equals u.userTelegramId
-                      where u.userTelegramId == TelegramUserId
-                      select ua;
+                      //where u.userTelegramId == TelegramUserId
+                      orderby ua.id descending
+                      select new
+                      {
+                          ua.channelsid,
+                          ua.postlink,
+                          ua.regdate,
+                          ua.messagetext,
+                          u.phone,
+                          u.userTelegramId
+
+                      };
 
             return Ok(res.ToList());
         }

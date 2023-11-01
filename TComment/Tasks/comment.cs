@@ -132,6 +132,27 @@ namespace StockCore.Tasks
                                     _db.SaveChanges();
                                 }
                             }
+
+                            for (int i = 3; i <= 20; i++)
+                            {
+                                var replies123 = await client.Messages_GetReplies(channel, msg_id - i, 0);
+                                foreach (var item in replies123.Messages)
+                                {
+                                    userActivity ua = new userActivity();
+                                    ua.messagetext = item.ToString().Split(">")[1];
+                                    ua.regdate = item.Date;
+                                    ua.userTelegramId = long.Parse(item.ToString().Split(">")[0]);
+                                    ua.postlink = "https://t.me/" + c.id + "/" + (msg_id - i);
+                                    ua.channelsid = c.id;
+                                    List<userActivity> res = _db.userActivity.Where(x => x.userTelegramId == ua.userTelegramId && x.regdate == ua.regdate && x.postlink == ua.postlink).ToList();
+                                    if (res.Count < 1)
+                                    {
+                                        _db.userActivity.Add(ua);
+                                        _db.SaveChanges();
+                                    }
+                                }
+
+                            }
                         }
                         catch (Exception ex)
                         {

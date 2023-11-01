@@ -15,5 +15,6 @@ namespace TCommentDataAccessLibrary.Models
         public string? phone { get; set; }
         [Required(ErrorMessage = "ای دی تلگرام نمیتواند خالی باشد")]
         public long userTelegramId { get; set; }
+        
     }
 }
