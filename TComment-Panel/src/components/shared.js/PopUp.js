@@ -3,27 +3,36 @@ import { styled } from "styled-components";
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from "react-toastify";
 
+import closeIcon from "../../assest/icons/close.svg";
+
 //Redux
-import { toggleModalUsers, toggleModalChannels } from "../../redux/modalSlice";
+import { toggleModalUsers, toggleModalChannels, toggleModalEditusers } from "../../redux/modalSlice";
 import { createChannel } from "../../redux/channels/createChannelSlice";
 import { createUser } from "../../redux/users/createUserSlice";
+import { fetchusers } from "../../redux/users/userSlice";
+import { fetchchannels } from "../../redux/channels/channelSlice";
 
 const PopUp = () => {
     const dispatch = useDispatch();
     const userSelector = useSelector((state) => state.modal.userPopup);
+    const editUserSelector = useSelector((state) => state.modal.edituserPopup);
     const channelSelector = useSelector((state) => state.modal.channelPopup);
     const [channelName, setChannelName] = useState("");
 
     const selectedUserId = useSelector((state) => state.selectedUser.userId);
     const users = useSelector((state) => state.userList.users);
     const editUser = users.find(user => user.userTelegramId === selectedUserId);
+    const [userData, setUserData] = useState({});
 
-    const [userData, setUserData] = useState([]);
+    const [userId, setUserIS] = useState(editUser ? editUser.id : "");
+    const [userName, setUserNAme] = useState(editUser ? editUser.name : "");
+    const [userTelegramId, setUSerTelegram] = useState(editUser ? editUser.userTelegramId : "");
+    const [userPhone, setUSerPhone] = useState(editUser ? editUser.phone : "");
 
     const setUserDatas = (key, value) => {
         setUserData((prevuserData) => ({
-          ...prevuserData,
-          [key]: value,
+          ...prevuserData,  
+          [key]: value,   
         }));
       };
 
@@ -31,27 +40,51 @@ const PopUp = () => {
         setChannelName(e.target.value);
     }
 
+    //ّInsert in User
     const userDataHandler = async() => {
-        dispatch(toggleModalUsers());
+        dispatch(toggleModalUsers(false));
         try {
             await dispatch(createUser(userData));
             toast.success("با موفقیت ثبت شد");
         } catch (error) {
             toast.error(error);
         }
-        console.log(userData)
+
     }
 
+    //Edit user
+    const editUserDataHandler = async() => {
+        dispatch(toggleModalEditusers(false));
+        const editData = {
+            "id": userId,
+            "name": userName,
+            "userTelegramId": userTelegramId,
+            "phone": userPhone
+        };
+        try {
+            const result = await dispatch(createUser(editData));
+            toast.success("با موفقیت ثبت شد");
+            console.log(result);
+        } catch (error) {
+            toast.error(error);
+        }
+        dispatch(fetchusers());
+
+    }
+
+
+    //ّInsert in Channel
     const channelsDataHandler = async () => {
-        dispatch(toggleModalChannels());
+        dispatch(toggleModalChannels(false));
         try {
             const newChannelData = {
-                "id": "",
-                "name": channelName,
+                "id": channelName,
+                "name": "",
                 "telegramId": "",
                 "isActive": true,
             };
             await dispatch(createChannel(newChannelData));
+            dispatch(fetchchannels());
             toast.success("با موفقیت ثبت شد");
         } catch (error) {
             toast.error(error);
@@ -59,29 +92,51 @@ const PopUp = () => {
     }
 
     return(
-        <ModalCn onClick={() => { dispatch(toggleModalUsers(false)); dispatch(toggleModalChannels(false)) }}>
-            {
-                userSelector &&
-                <Box>
-
-                    <p>نام</p>
-                    <input type='text' value={editUser.name} onChange={(e) => setUserDatas( "name", e.target.value)} />
-                    <p>نام کاربری</p>
-                    <input type='text' value={editUser.userTelegramId} onChange={(e) => setUserDatas("userTelegramId", e.target.value)} />
-                    <p>موبایل</p>
-                    <input type='text' value={editUser.phone} onChange={(e) => setUserDatas("phone", e.target.value)} />
-                    <button onClick={() => userDataHandler()}>ذخیره</button>
-                </Box>
-            }
-            {
-                channelSelector &&
-                <Box>
-                    <p>نام کانال</p>
-                    <input type='text' onChange={getChannelName} value={channelName} />
-                    <button onClick={() => channelsDataHandler()}>ذخیره</button>
-                </Box>
-            }
-        </ModalCn>
+        <ModalCn>
+        {
+            userSelector &&
+            <Box>
+                 <img src={closeIcon} onClick={() => dispatch(toggleModalUsers(false))} />
+                <p>نام</p>
+                <input type='text' onChange={(e) => setUserDatas("name", e.target.value)} />
+                <p>نام کاربری</p>
+                <input type='text'  onChange={(e) => setUserDatas("userTelegramId",  parseInt(e.target.value, 10))} />
+                <p>موبایل</p>
+                <input type='text' onChange={(e) => setUserDatas("phone", e.target.value)} />
+                <button 
+                    onClick={() => userDataHandler()}
+                    disabled={userData.name === "" && userData.userTelegramId === "" && userData.phone === "" && userData.length === 0}
+                >ذخیره</button>
+            </Box>
+        }
+        {
+            editUserSelector &&
+            <Box>
+                 <img src={closeIcon} onClick={() => dispatch(toggleModalEditusers(false))} />
+                <p>نام</p>
+                <input type='text' value={userName} onChange={(e) => setUserNAme( e.target.value)} />
+                <p>نام کاربری</p>
+                <input type='text' value={userTelegramId}  onChange={(e) => setUSerTelegram(parseInt(e.target.value, 10))} />
+                <p>موبایل</p>
+                <input type='text' value={userPhone} onChange={(e) => setUSerPhone(e.target.value)} />
+                <button 
+                    onClick={() => editUserDataHandler()}
+                >ویرایش</button>
+            </Box>
+        }
+        {
+            channelSelector &&
+            <Box>
+                <img src={closeIcon} onClick={() => dispatch(toggleModalChannels(false))} />
+                <p>نام کانال</p>
+                <input type='text' onChange={getChannelName} value={channelName} />
+                <button 
+                    onClick={() => channelsDataHandler()}
+                    disabled={channelName === ""}
+                >ذخیره</button>
+            </Box>
+        }
+    </ModalCn>
     )
 }
 
@@ -148,5 +203,12 @@ const ModalCn = styled.div`
         font-style: normal;
         font-weight: 700;
         border: none
+    }
+
+    & img{
+        width: 20px;
+        cursor: pointer;
+        position: absolute;
+        left: 20px;
     }
 `
