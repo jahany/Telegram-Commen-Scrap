@@ -172,6 +172,8 @@ export const CommentTable = ({ data }) => {
             sortedRows.map((row, rowIndex) => (
               <TableRow key={rowIndex}>
                 {/* <TableCell>{row.username}</TableCell> */}
+                <TableCell>{row.name}</TableCell>
+                <TableCell>{row.phone}</TableCell>
                 <TableCell>{row.regdate}</TableCell>
                 <TableCell>{row.messagetext}</TableCell> 
                 <TableCell>
